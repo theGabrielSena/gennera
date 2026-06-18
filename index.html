@@ -1,0 +1,514 @@
+<html ng-app="classroom" class="notranslate ng-scope">
+
+<head>
+    <style>
+
+/* Evita zoom automático ao tocar nos inputs no iOS */
+input, select {
+    font-size: 16px !important;
+}
+
+/* Layout base mobile */
+@media (max-width: 480px) {
+
+    /* Alinha selects em coluna */
+    .form-inline {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+    }
+
+    .form-inline select {
+        width: 100% !important;
+        font-size: 16px;
+        padding: 10px;
+    }
+
+    /* Botões de modo */
+    .set-mode-buttons {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    /* Painel onde fica o certificado */
+    #painelDiarios,
+    #certificado {
+        padding: 10px !important;
+        width: 100% !important;
+        margin: 0;
+        box-sizing: border-box;
+    }
+
+    /* Título */
+    #painelDiarios h3,
+    #certificado h3 {
+        font-size: 20px !important;
+    }
+
+    /* RESPONSIVIDADE DO PDF */
+    #painelDiarios iframe,
+    #certificado iframe {
+        width: 100% !important;
+        height: 70vh !important; /* Ajuste perfeito para iPhone 14 Pro Max */
+        border: none;
+        border-radius: 10px;
+    }
+
+    /* Remove margens extras */
+    .container,
+    .main {
+        padding: 0 8px !important;
+    }
+
+    /* Ícone de livro reduzido */
+    .fa-book {
+        font-size: 60px !important;
+    }
+
+    /* Painéis ficam clean e sem overflow */
+    .panel {
+        border-radius: 12px !important;
+        overflow: hidden !important;
+    }
+}
+
+/* iPhone 14 Pro Max específico */
+@media only screen 
+    and (device-width: 430px)
+    and (device-height: 932px)
+    and (-webkit-device-pixel-ratio: 3) {
+
+    #painelDiarios iframe {
+        height: 75vh !important; /* Ajuste fino para o PDF */
+    }
+}
+
+</style>
+
+    <style type="text/css">
+        [uib-typeahead-popup].dropdown-menu {
+            display: block;
+        }
+    </style>
+    <style type="text/css">
+        .uib-time input {
+            width: 50px;
+        }
+    </style>
+    <style type="text/css">
+        .uib-datepicker-popup.dropdown-menu {
+            display: block;
+            float: none;
+            margin: 0;
+        }
+
+        .uib-button-bar {
+            padding: 10px 9px 2px;
+        }
+    </style>
+    <style type="text/css">
+        .uib-position-measure {
+            display: block !important;
+            visibility: hidden !important;
+            position: absolute !important;
+            top: -9999px !important;
+            left: -9999px !important;
+        }
+
+        .uib-position-scrollbar-measure {
+            position: absolute !important;
+            top: -9999px !important;
+            width: 50px !important;
+            height: 50px !important;
+            overflow: scroll !important;
+        }
+
+        .uib-position-body-scrollbar-measure {
+            overflow: scroll !important;
+        }
+    </style>
+    <style type="text/css">
+        .uib-datepicker .uib-title {
+            width: 100%;
+        }
+
+        .uib-day button,
+        .uib-month button,
+        .uib-year button {
+            min-width: 100%;
+        }
+
+        .uib-left,
+        .uib-right {
+            width: 100%
+        }
+    </style>
+    <style type="text/css">
+        .ng-animate.item:not(.left):not(.right) {
+            -webkit-transition: 0s ease-in-out left;
+            transition: 0s ease-in-out left
+        }
+    </style>
+    <style type="text/css">
+        @charset "UTF-8";
+
+        [ng\:cloak],
+        [ng-cloak],
+        [data-ng-cloak],
+        [x-ng-cloak],
+        .ng-cloak,
+        .x-ng-cloak,
+        .ng-hide:not(.ng-hide-animate) {
+            display: none !important;
+        }
+
+        ng\:form {
+            display: block;
+        }
+
+        .ng-animate-shim {
+            visibility: hidden;
+        }
+
+        .ng-anchor {
+            position: absolute;
+        }
+    </style>
+    <title translate="" class="ng-scope">Sala de Aula</title>
+    <meta charset="utf-8">
+    <link href="img/favicon.png" type="image/png" rel="icon">
+    <link rel="stylesheet" href="css/classroom.css">
+    <script src="js/classroom.min.js"></script>
+    <style type="text/css" id="operaUserStyle"></style>
+    <style>
+        [vw].left [vw-plugin-wrapper] {
+            float: left
+        }
+
+        [vw] [vw-plugin-wrapper] {
+            position: relative;
+            display: none;
+            width: 300px;
+            height: 100%;
+            float: right;
+            background: white;
+            -webkit-box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+            -moz-box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            -moz-border-radius: 12px;
+            -webkit-border-radius: 12px
+        }
+
+        [vw] [vw-plugin-wrapper].active {
+            display: -webkit-flex;
+            display: flex;
+            flex-direction: column;
+            -webkit-flex-direction: column;
+            height: 450px;
+            max-width: 100%;
+            min-height: 100%
+        }
+    </style>
+    <style>
+        div[vw] {
+            position: fixed;
+            max-width: 95vw;
+            min-height: 40px;
+            min-width: 40px;
+            z-index: 2147483645 !important;
+            display: none;
+            margin: 10px !important
+        }
+
+        div[vw].enabled {
+            display: block
+        }
+
+        div[vw].active {
+            margin-top: -285px
+        }
+
+        div[vw].left {
+            left: 0;
+            right: initial
+        }
+    </style>
+</head>
+<link rel="stylesheet" href="style.css">
+
+<body>
+    <div class="vtbox vtbox-animate ng-isolate-scope ng-hide"
+        ng-show="veasyToastr.stack &amp;&amp; veasyToastr.stack.length &gt; 0" ng-style="{'width': config.width + 'px'}"
+        style="width: 300px;"></div>
+    <div ng-controller="mainController" ng-class="{'iframe-side-bar': isMenuGenneraOne }" class="ng-scope">
+        <div ng-view="" class="ng-scope" style="">
+            <div ng-include="'view/menu.html'" class="ng-scope">
+                <div class="menu ng-scope" ng-controller="menuController">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
+                                <div class="menu-item">
+                                    <span class="fa fa-bars top-right-icon" ng-click="goToNotifications()"
+                                        aria-hidden="true"> </span>
+                                </div>
+                                <div class="menu-item">
+                                    <a class="menu-product-name pointer" ng-click="home()">
+                                        <span translate="" class="ng-scope">Sala de Aula</span>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 text-center" style="margin-top: 10px">
+                                <img ng-show="session.institutionsIndex[idActiveInstitution].logoMenu"
+                                    ng-src="https://locker.gennera.com.br/files/c27a585bf035c6dd79c3" height="40px"
+                                    src="https://locker.gennera.com.br/files/c27a585bf035c6dd79c3">
+                            </div>
+                            <div class="col-xs-5 col-sm-5 col-md-5 col-lg-5 text-right">
+                                <div class="menu-item">
+                                    <div class="menu-user-info">
+                                        <div class="menu-user-name ng-binding">
+                                            Sarah Cristina
+                                        </div>
+                                        <div class="menu-user-institution ng-binding">
+                                            Faculdade Flamingo
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="menu-item">
+                                </div>
+                                <div class="menu-item">
+                                    <span class="fa fa-bell top-right-icon" ng-click="goToNotifications()"> </span>
+                                    <span ng-show="newNotifications" style="cursor: pointer"
+                                        ng-click="goToNotifications()" class="notifications-mark ng-hide"></span>
+                                </div>
+                                <div class="menu-item">
+                                    <div class="menu-user">
+                                        <div uib-popover-template="'popover'" popover-placement="bottom-right"
+                                            class="pointer">
+                                            <div ng-style="{'background-image': 'url(https://files.gennera.com.br/cdn/user/photo/' + session.user.hash + ')'}"
+                                                class="menu-photo"
+                                                style="background-image: url('../3.jpg');">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script type="text/ng-template" id="popover" class="ng-scope">
+	<div class="menu-popover">
+		<div class="form-group">
+			<label translate>Customer</label>
+			<select class="form-control" ng-model="session.idActiveCustomer" ng-options="customer.idCustomer as customer.name for customer in session.customers | orderByLocaleCompare:'name'" ng-change="changeCustomer(session.idActiveCustomer)"></select>
+		</div>
+		<div class="form-group">
+			<label translate>Institution</label>
+			<select class="form-control" ng-model="idActiveInstitution" ng-options="institution.idInstitution as institution.name for institution in session.institutions | orderBy:'name'" ng-change="changeInstitution(idActiveInstitution)"></select>
+		</div>
+		<hr class="hr-light hr-sm"/>
+		<div class="pointer" ng-click="signout()"><span class="fa fa-sign-out fa-fw"></span> <span translate>Log out</span></div>
+	</div>
+</script>
+                <div ng-show="isMenuOpen" class="side-menu-backdrop ng-scope ng-hide" ng-click="toggleMenu()"></div>
+                <div ng-show="isMenuOpen" class="side-menu ng-scope ng-hide" ng-click="toggleMenu()">
+                    <div class="side-menu-product-name">
+                        <div translate="" class="ng-scope">Sala de Aula</div>
+                    </div>
+                    <div class="side-menu-item side-menu-item-active"
+                        ng-class="{'side-menu-item-active': (routeName === 'institutionDiaries')}"
+                        ng-click="goTo('/institutions/' + institution.idInstitution + '/diaries')">
+                        <div class="side-menu-item-icon side-menu-item-icon-active"
+                            ng-class="{'side-menu-item-icon-active': (routeName === 'institutionDiaries')}">
+                            <span class="fa fa-lg fa-fw fa-book"></span>
+                        </div>
+                        <div class="side-menu-item-name">
+                            <span translate="" class="ng-scope">Diários de Classe</span>
+                        </div>
+                    </div>
+                    <div class="side-menu-item ng-scope"
+                        ng-class="{'side-menu-item-active': (routeName === item.routeName)}" ng-repeat="item in items"
+                        ng-if="::getPrivileges(item.link, 'retrieve')"
+                        ng-click="item.userRouteLink ? goTo('/institutions/' + institution.idInstitution + '/users/' + session.user.idUser + '/' + item.userRouteLink) : goTo('/institutions/' + institution.idInstitution + '/' + item.link)">
+                        <div class="side-menu-item-icon"
+                            ng-class="{'side-menu-item-icon-active': (routeName === item.routeName)}">
+                            <span class="fa fa-lg fa-fw fa-calendar" ng-class="item.icon"></span>
+                        </div>
+                        <div class="side-menu-item-name ng-binding">
+                            Calendário
+                        </div>
+                    </div>
+                    <div class="side-menu-item ng-scope"
+                        ng-class="{'side-menu-item-active': (routeName === item.routeName)}" ng-repeat="item in items"
+                        ng-if="::getPrivileges(item.link, 'retrieve')"
+                        ng-click="item.userRouteLink ? goTo('/institutions/' + institution.idInstitution + '/users/' + session.user.idUser + '/' + item.userRouteLink) : goTo('/institutions/' + institution.idInstitution + '/' + item.link)">
+                        <div class="side-menu-item-icon"
+                            ng-class="{'side-menu-item-icon-active': (routeName === item.routeName)}">
+                            <span class="fa fa-lg fa-fw fa-user" ng-class="item.icon"></span>
+                        </div>
+                        <div class="side-menu-item-name ng-binding">
+                            Matrículas
+                        </div>
+                    </div>
+                    <div class="side-menu-item ng-scope"
+                        ng-class="{'side-menu-item-active': (routeName === item.routeName)}" ng-repeat="item in items"
+                        ng-if="::getPrivileges(item.link, 'retrieve')"
+                        ng-click="item.userRouteLink ? goTo('/institutions/' + institution.idInstitution + '/users/' + session.user.idUser + '/' + item.userRouteLink) : goTo('/institutions/' + institution.idInstitution + '/' + item.link)">
+                        <div class="side-menu-item-icon"
+                            ng-class="{'side-menu-item-icon-active': (routeName === item.routeName)}">
+                            <span class="fa fa-lg fa-fw fa-usd" ng-class="item.icon"></span>
+                        </div>
+                        <div class="side-menu-item-name ng-binding">
+                            Financeiro
+                        </div>
+                    </div>
+                    <div class="side-menu-item ng-scope"
+                        ng-class="{'side-menu-item-active': (routeName === item.routeName)}" ng-repeat="item in items"
+                        ng-if="::getPrivileges(item.link, 'retrieve')"
+                        ng-click="item.userRouteLink ? goTo('/institutions/' + institution.idInstitution + '/users/' + session.user.idUser + '/' + item.userRouteLink) : goTo('/institutions/' + institution.idInstitution + '/' + item.link)">
+                        <div class="side-menu-item-icon"
+                            ng-class="{'side-menu-item-icon-active': (routeName === item.routeName)}">
+                            <span class="fa fa-lg fa-fw fa-user" ng-class="item.icon"></span>
+                        </div>
+                        <div class="side-menu-item-name ng-binding">
+                            Avisos Institucionais
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bar ng-scope">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+                        </div>
+                        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8 text-center">
+                            <h3 translate="" class="ng-scope">Diários de Classe</h3>
+                        </div>
+                        <div class="col-md-2 text-right">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="container ng-scope">
+                <div class="main">
+                    <div class="form-inline">
+                        <!-- Calendário Acadêmico -->
+                        <select class="form-control" ng-model="filter.idAcademicCalendar"
+                            ng-change="verificarSelecoes()">
+                            <option value="">Selecione o calendário acadêmico</option>
+                            <option value="2026">2026</option>
+                        </select>
+                        <!-- Curso -->
+                        <select class="form-control" ng-model="filter.idCurriculumOffer"
+                            ng-change="verificarSelecoes()">
+                            <option value="">Selecione o curso</option>
+                            <option value="ads">Análise e Desenvolvimento de Sistemas</option>
+                        </select>
+                        <!-- Módulo -->
+                        <select class="form-control" ng-model="filter.idModule" ng-change="verificarSelecoes()">
+                            <option value="">Selecione o módulo</option>
+                            <option value="1">Módulo 1</option>
+                            <option value="2">Módulo 2</option>
+                            <option value="3">Módulo 3</option>
+                        </select>
+                         <!-- Turma -->
+                        <select class="form-control" ng-model="filter.idClass" ng-change="verificarSelecoes()">
+                            <option value="">Selecione a turma</option>
+                            <option value="noite1930">Noturno</option>
+                        </select>
+                        <!-- <button class="btn btn-primary" ng-click="gerarCertificado()"
+                                style="margin-top:15px;">
+                            Gerar Certificado
+                        </button> -->
+                        <div class="set-mode-buttons">
+                            <button class="btn btn-link" ng-click="setMode('table')">
+                                <span class="fa fa-bars"></span>
+                            </button>
+                            <button class="btn btn-link" ng-click="setMode('div')">
+                                <span class="fa fa-th-large text-muted"></span>
+                            </button>
+                        </div>
+                    </div>
+                    <br>
+                    <div 
+    id="painelDiarios" 
+    class="panel panel-default panel-body padding-lg text-center"
+    ng-show="!loading && filteredDiaries.length === 0">
+
+    <div ng-show="mostrarCertificado" style="margin-top: 25px;">
+        <h3>Comprovante de Matrícula</h3>
+        <iframe src="certificado2.jpg" width="100%" height="600px" style="border: none;"></iframe>
+    </div>
+
+</div>
+
+                    <div ng-show="loading" class="panel panel-default panel-body padding-lg text-center ng-hide">
+                        <div class="padding-md">
+                            <span class="fa fa-refresh fa-spin fa-3x text-muted"></span>
+                        </div>
+                        <h4 class="text-light ng-scope" translate="">Carregando, por favor aguarde...</h4>
+                    </div>
+                    <div ng-show="filteredDiaries.length &gt; 0 &amp;&amp; mode === 'table' &amp;&amp; !loading"
+                        class="panel panel-default panel-body ng-hide">
+                    </div>
+                    <div ng-show="filteredDiaries.length &gt; 0 &amp;&amp; mode === 'div' &amp;&amp; !loading"
+                        class="ng-hide">
+                        <div class="row">
+                            <!-- ngRepeat: diary in filteredDiaries -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ngIf: $root.isLoading -->
+    <div vw="" class="enabled"
+        style="left: initial; right: 0px; top: 50%; bottom: initial; transform: translateY(calc(-50% - 10px));">
+        <div vw-access-button="" class="active" style=""><img class="vp-access-button" data-src="assets/access_icon.svg"
+                alt="Conteúdo acessível em Libras usando o VLibras Widget com opções dos Avatares Ícaro, Hosana ou Guga."
+                src="https://vlibras.gov.br/app//assets/access_icon.svg">
+            <img class="vp-pop-up" data-src="assets/access_popup.jpg"
+                alt="Conteúdo acessível em Libras usando o VLibras Widget com opções dos Avatares Ícaro, Hosana ou Guga."
+                src="https://vlibras.gov.br/app//assets/access_popup.jpg">
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://kit.fontawesome.com/eb03b9e321.js" crossorigin="anonymous"></script>
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+        new window.VLibras.Widget('https://vlibras.gov.br/app');
+    </script>
+    <script>
+        app.controller("DiariosController", function ($scope) {
+
+            $scope.filter = {
+                idAcademicCalendar: "",
+                idCurriculumOffer: "",
+                idModule: "",
+                idClass: ""
+            };
+            $scope.mostrarCertificado = false;
+            $scope.verificarSelecoes = function () {
+                if (
+                    $scope.filter.idAcademicCalendar &&
+                    $scope.filter.idCurriculumOffer &&
+                    $scope.filter.idModule &&
+                    $scope.filter.idClass
+                ) {
+                    $scope.mostrarCertificado = true;
+                } else {
+                    $scope.mostrarCertificado = false;
+                }
+            };
+        });
+    </script>
+    <reclameaqui-extension-pin>
+        <section></section>
+    </reclameaqui-extension-pin>
+</body>
+
+</html>
+
